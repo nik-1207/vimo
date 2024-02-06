@@ -1,11 +1,16 @@
-use std::io::{self, stdout};
+mod utils;
+use std::io::stdout;
 use termion::event::Key;
-use termion::input::TermRead;
 use termion::raw::IntoRawMode;
+use utils::{die, read_key};
 
 pub struct Editor {}
 
 impl Editor {
+    pub fn default() -> Self {
+        Self {}
+    }
+
     pub fn run(self) {
         let _stdout = stdout().into_raw_mode().unwrap(); // entering raw mode for terminal i.e it will not wait terminal to press 'enter' key to read the input.
 
@@ -23,21 +28,5 @@ impl Editor {
             _ => (),
         }
         Ok(())
-    }
-
-    pub fn default() -> Self {
-        Self {}
-    }
-}
-
-fn die(error: &std::io::Error) {
-    panic!("{}", error);
-}
-
-fn read_key() -> Result<Key, std::io::Error> {
-    loop {
-        if let Some(key) = io::stdin().lock().keys().next() {
-            return key;
-        }
     }
 }
