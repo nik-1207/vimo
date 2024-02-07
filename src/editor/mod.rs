@@ -23,7 +23,7 @@ impl Editor {
                 die(&error);
             }
             if self.should_quit {
-                println!("Adios...\r"); // "\r escape sequence for carriage return Ref: https://stackoverflow.com/questions/7372918/whats-the-use-of-r-escape-sequence"
+                println!("Adios...\r"); // '\r' escape sequence for carriage return Ref: https://stackoverflow.com/questions/7372918/whats-the-use-of-r-escape-sequence"
                 break;
             }else{
                 Editor::draw_rows();
