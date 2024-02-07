@@ -1,5 +1,5 @@
 mod utils;
-use std::io::stdout;
+use std::io::{stdout, Error};
 use termion::event::Key;
 use termion::raw::IntoRawMode;
 use utils::{die, read_key};
@@ -7,25 +7,20 @@ use utils::{die, read_key};
 pub struct Editor {}
 
 impl Editor {
-    pub fn default() -> Self {
-        Self {}
-    }
-
-    pub fn run(self) {
-        let _stdout = stdout().into_raw_mode().unwrap(); // entering raw mode for terminal i.e it will not wait terminal to press 'enter' key to read the input.
-
+    pub fn run() {
+        // entering raw mode for terminal i.e it will not wait terminal to press 'enter' key to read the input.
+        let _stdout = stdout().into_raw_mode().unwrap();
         loop {
-            if let Err(error) = self.process_key_press() {
+            if let Err(error) = Editor::process_key_press() {
                 die(&error);
             }
         }
     }
 
-    fn process_key_press(&self) -> Result<(), std::io::Error> {
+    fn process_key_press() -> Result<(), Error> {
         let key = read_key()?;
-        match key {
-            Key::Ctrl('c') => panic!("exiting..."),
-            _ => (),
+        if let Key::Ctrl('c') = key {
+            panic!("Exiting...");
         }
         Ok(())
     }
