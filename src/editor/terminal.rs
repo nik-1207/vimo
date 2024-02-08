@@ -1,28 +1,31 @@
-use std::io::{Stdout,stdout,Error,Write,stdin};
-use termion::terminal_size;
+use std::io::{stdin, stdout, Error, Stdout, Write};
 use termion::clear;
 use termion::cursor::Goto;
 use termion::event::Key;
-use termion::raw::{IntoRawMode,RawTerminal};
 use termion::input::TermRead;
+use termion::raw::{IntoRawMode, RawTerminal};
+use termion::terminal_size;
 
 pub(crate) struct Size {
     pub(crate) height: u16,
-    pub(crate) width: u16,
+    pub(crate) _width: u16,
 }
 
 pub(crate) struct Terminal {
     size: Size,
-    stdout: RawTerminal<Stdout>
+    _stdout: RawTerminal<Stdout>,
 }
 
 impl Terminal {
     pub(crate) fn default() -> Result<Self, Error> {
         let (width, height) = terminal_size()?;
         Ok(Self {
-            size: Size { height, width },
+            size: Size {
+                height,
+                _width: width,
+            },
             // entering raw mode for terminal i.e it will not wait terminal to press 'enter' key to read the input.
-            stdout: stdout().into_raw_mode()?,
+            _stdout: stdout().into_raw_mode()?,
         })
     }
 
@@ -34,7 +37,7 @@ impl Terminal {
         stdout().flush() // not adding ';' so that error can be handled in 'run' function itself.
     }
 
-    pub(crate) fn clear_screen(){
+    pub(crate) fn _clear_screen() {
         print!("{} {}", clear::All, Goto(1, 1)); // clear screen.
     }
 
@@ -49,5 +52,10 @@ impl Terminal {
     pub(crate) fn die(error: &std::io::Error) {
         panic!("{}", error);
     }
-    
+
+    pub fn _cursor_position(x: u16, y: u16) {
+        let x = x.saturating_add(1);
+        let y = y.saturating_add(1);
+        print!("{}", termion::cursor::Goto(x, y));
+    }
 }
