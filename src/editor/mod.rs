@@ -1,18 +1,26 @@
+mod terminal;
 mod utils;
+
 use std::io::{stdout, Error, Write};
-use termion::clear::All;
+use termion::clear;
 use termion::cursor::Goto;
 use termion::event::Key;
 use termion::raw::IntoRawMode;
+
+use terminal::Terminal;
 use utils::{die, read_key};
 
 pub struct Editor {
     should_quit: bool,
+    terminal: Terminal,
 }
 
 impl Editor {
     pub fn default() -> Self {
-        Self { should_quit: false }
+        Self {
+            should_quit: false,
+            terminal: Terminal::default().expect("Failed to initialize the terminal."),
+        }
     }
 
     pub fn run(&mut self) {
@@ -25,9 +33,9 @@ impl Editor {
             if self.should_quit {
                 println!("Adios...\r"); // '\r' escape sequence for carriage return Ref: https://stackoverflow.com/questions/7372918/whats-the-use-of-r-escape-sequence"
                 break;
-            }else{
-                Editor::draw_rows();
             }
+            self.draw_rows();
+
             if let Err(error) = self.process_key_press() {
                 die(&error);
             }
@@ -43,12 +51,14 @@ impl Editor {
     }
 
     fn refresh_screen() -> Result<(), Error> {
-        print!("{} {}", All, Goto(1, 1));
+        print!("{} {}", clear::All, Goto(1, 1)); // clear screen.
         stdout().flush() // not adding ';' so that error can be handled in 'run' function itself.
     }
-    fn draw_rows (){
-        for _ in 0..24{
-            println!("~\r");            
+
+    fn draw_rows(&self) {
+        let size = self.terminal.size();
+        for _ in 0..size.height {
+            println!("~\r");
         }
     }
 }
