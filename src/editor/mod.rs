@@ -27,6 +27,7 @@ impl Editor {
                 break;
             }
             self.draw_rows();
+            Terminal::cursor_position(0, 0);
 
             if let Err(error) = self.process_key_press() {
                 Terminal::die(&error);

@@ -37,7 +37,7 @@ impl Terminal {
         stdout().flush() // not adding ';' so that error can be handled in 'run' function itself.
     }
 
-    pub(crate) fn _clear_screen() {
+    pub(crate) fn clear_screen() {
         print!("{} {}", clear::All, Goto(1, 1)); // clear screen.
     }
 
@@ -50,12 +50,13 @@ impl Terminal {
     }
 
     pub(crate) fn die(error: &std::io::Error) {
+        Terminal::clear_screen();
         panic!("{}", error);
     }
 
-    pub fn _cursor_position(x: u16, y: u16) {
-        let x = x.saturating_add(1);
-        let y = y.saturating_add(1);
+    pub fn cursor_position(x: u16, y: u16) {
+        let x = x.saturating_add(1); // prevent overflow
+        let y = y.saturating_add(1); // prevent overflow 
         print!("{}", termion::cursor::Goto(x, y));
     }
 }
