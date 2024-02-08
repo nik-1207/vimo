@@ -45,7 +45,7 @@ impl Editor {
 
     fn draw_rows(&self) {
         let size = self.terminal.size();
-        for _ in 0..size.height {
+        for _ in 0..size.height - 1 {
             println!("~\r");
         }
     }
