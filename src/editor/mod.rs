@@ -19,15 +19,14 @@ impl Editor {
 
     pub fn run(&mut self) {
         loop {
+            if self.should_quit {
+                Terminal::clear_screen();
+                println!("Adios...\r"); // '\r' escape sequence for carriage return Ref: https://stackoverflow.com/questions/7372918/whats-the-use-of-r-escape-sequence"
+                break;
+            }
             if let Err(error) = self.refresh_screen() {
                 Terminal::die(&error);
             }
-            if self.should_quit {
-                break;
-            }
-            self.draw_rows();
-            Terminal::cursor_position(0, 0);
-
             if let Err(error) = self.process_key_press() {
                 Terminal::die(&error);
             }
@@ -38,16 +37,12 @@ impl Editor {
         Terminal::cursor_hide();
         Terminal::clear_screen();
         Terminal::cursor_position(0, 0);
-        if self.should_quit {
-            println!("Adios...\r");// '\r' escape sequence for carriage return Ref: https://stackoverflow.com/questions/7372918/whats-the-use-of-r-escape-sequence"
-        } else {
-            self.draw_rows();
-            Terminal::cursor_position(0, 0);
-        }
+        self.draw_rows();
+        Terminal::cursor_position(0, 0);
         Terminal::cursor_show();
         Terminal::flush()
     }
-    
+
     fn process_key_press(&mut self) -> Result<(), Error> {
         let key = Terminal::read_key()?;
         if let Key::Ctrl('c') = key {
