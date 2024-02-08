@@ -54,6 +54,7 @@ impl Editor {
     fn draw_rows(&self) {
         let size = self.terminal.size();
         for _ in 0..size.height - 1 {
+            Terminal::clear_current_line();
             println!("~\r");
         }
     }

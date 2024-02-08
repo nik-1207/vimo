@@ -54,16 +54,21 @@ impl Terminal {
         panic!("{}", error);
     }
 
-    pub fn cursor_position(x: u16, y: u16) {
+    pub(crate) fn cursor_position(x: u16, y: u16) {
         let x = x.saturating_add(1); // prevent overflow
         let y = y.saturating_add(1); // prevent overflow
         print!("{}", termion::cursor::Goto(x, y));
     }
 
-    pub fn cursor_hide() {
+    pub(crate) fn cursor_hide() {
         print!("{}", termion::cursor::Hide);
     }
-    pub fn cursor_show() {
+
+    pub(crate) fn cursor_show() {
         print!("{}", termion::cursor::Show);
+    }
+
+    pub(crate) fn clear_current_line() {
+        print!("{}", clear::CurrentLine)
     }
 }
