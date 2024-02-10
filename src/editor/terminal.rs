@@ -1,3 +1,4 @@
+use super::Position;
 use std::io::{stdin, stdout, Error, Stdout, Write};
 use termion::clear;
 use termion::cursor::Goto;
@@ -51,9 +52,13 @@ impl Terminal {
         panic!("{}", error);
     }
 
-    pub(crate) fn cursor_position(x: u16, y: u16) {
-        let x = x.saturating_add(1); // prevent overflow
-        let y = y.saturating_add(1); // prevent overflow
+    // tkaing address only to prevent modification of the actual position.
+    pub(crate) fn cursor_position(position: &Position) {
+        let Position { mut x, mut y } = position;
+        x = x.saturating_add(1); // prevent overflow
+        y = y.saturating_add(1); // prevent overflow
+        let x = u16::try_from(x).unwrap();
+        let y = u16::try_from(y).unwrap();
         print!("{}", termion::cursor::Goto(x, y));
     }
 

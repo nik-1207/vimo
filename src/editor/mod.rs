@@ -4,8 +4,14 @@ use std::io::Error;
 use terminal::Terminal;
 use termion::event::Key;
 
+pub(crate) struct Position {
+    x: usize,
+    y: usize,
+}
+
 pub struct Editor {
     should_quit: bool,
+    cursor_position: Position,
     terminal: Terminal,
 }
 
@@ -15,6 +21,7 @@ impl Editor {
     pub fn default() -> Self {
         Self {
             should_quit: false,
+            cursor_position: Position { x: 0, y: 0 },
             terminal: Terminal::default().expect("Failed to initialize the terminal."),
         }
     }
@@ -38,9 +45,9 @@ impl Editor {
     fn refresh_screen(&self) -> Result<(), std::io::Error> {
         Terminal::cursor_hide();
         Terminal::clear_screen();
-        Terminal::cursor_position(0, 0);
+        Terminal::cursor_position(&Position { x: 0, y: 0 });
         self.draw_rows();
-        Terminal::cursor_position(0, 0);
+        Terminal::cursor_position(&self.cursor_position);
         Terminal::cursor_show();
         Terminal::flush()
     }
@@ -73,6 +80,6 @@ impl Editor {
         let spaces = " ".repeat(padding.saturating_sub(1));
         message = format!("~{spaces} {message}");
         message.truncate(width);
-        println!("{message}\r" );
+        println!("{message}\r");
     }
 }
