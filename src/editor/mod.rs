@@ -55,22 +55,10 @@ impl Editor {
     fn process_key_press(&mut self) -> Result<(), Error> {
         let key = Terminal::read_key()?;
         match key {
-            Key::Ctrl('c') => {
-                self.should_quit = true;
-            }
-            Key::Up => {
-                self.cursor_position.y = self.cursor_position.y.saturating_sub(1);
-            }
-            Key::Down => {
-                self.cursor_position.y = self.cursor_position.y.saturating_add(1);
-            }
-            Key::Left => {
-                self.cursor_position.x = self.cursor_position.x.saturating_sub(1);
+            Key::Ctrl('c') => self.should_quit = true,
 
-            }
-            Key::Right => {
-                self.cursor_position.x = self.cursor_position.x.saturating_add(1);
-            }
+            Key::Up | Key::Down | Key::Left | Key::Right => self.handle_cursor(key),
+
             _ => (),
         }
         Ok(())
@@ -97,5 +85,27 @@ impl Editor {
         message = format!("~{spaces} {message}");
         message.truncate(width);
         println!("{message}\r");
+    }
+
+    fn handle_cursor(&mut self, key: Key) {
+        let Position { mut x, mut y } = self.cursor_position;
+        let size = self.terminal.size();
+        match key {
+            Key::Up => y = y.saturating_sub(1),
+            Key::Down => {
+                if size.height-1 > (u16::try_from(y).unwrap()) {
+                    y = y.saturating_add(1);
+                }
+            }
+            Key::Left => x = x.saturating_sub(1),
+            Key::Right => {
+                if size.width-1 > (u16::try_from(x).unwrap()) {
+                    x = x.saturating_add(1);
+                }
+            }
+            _ => (),
+        }
+        print!("{x} {y}");
+        self.cursor_position = Position { x, y };
     }
 }
