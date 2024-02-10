@@ -9,6 +9,8 @@ pub struct Editor {
     terminal: Terminal,
 }
 
+const VERSION: &str = env!("CARGO_PKG_VERSION");
+
 impl Editor {
     pub fn default() -> Self {
         Self {
@@ -53,9 +55,24 @@ impl Editor {
 
     fn draw_rows(&self) {
         let size = self.terminal.size();
-        for _ in 0..size.height - 1 {
+        for row in 0..size.height - 1 {
             Terminal::clear_current_line();
-            println!("~\r");
+            if row == size.height / 3 {
+                self.draw_welcome();
+            } else {
+                println!("~\r");
+            }
         }
+    }
+
+    fn draw_welcome(&self) {
+        let mut message = format!("VIMO editor --- version {VERSION}");
+        let width = self.terminal.size().width as usize;
+        let message_length = message.len();
+        let padding = width.saturating_sub(message_length) / 2;
+        let spaces = " ".repeat(padding.saturating_sub(1));
+        message = format!("~{spaces} {message}");
+        message.truncate(width);
+        println!("{message}\r" );
     }
 }

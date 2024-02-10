@@ -8,7 +8,7 @@ use termion::terminal_size;
 
 pub(crate) struct Size {
     pub(crate) height: u16,
-    pub(crate) _width: u16,
+    pub(crate) width: u16,
 }
 
 pub(crate) struct Terminal {
@@ -20,10 +20,7 @@ impl Terminal {
     pub(crate) fn default() -> Result<Self, Error> {
         let (width, height) = terminal_size()?;
         Ok(Self {
-            size: Size {
-                height,
-                _width: width,
-            },
+            size: Size { height, width },
             // entering raw mode for terminal i.e it will not wait terminal to press 'enter' key to read the input.
             _stdout: stdout().into_raw_mode()?,
         })
@@ -69,6 +66,6 @@ impl Terminal {
     }
 
     pub(crate) fn clear_current_line() {
-        print!("{}", clear::CurrentLine)
+        print!("{}", clear::CurrentLine);
     }
 }
