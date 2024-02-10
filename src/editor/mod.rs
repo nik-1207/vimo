@@ -56,9 +56,14 @@ impl Editor {
         let key = Terminal::read_key()?;
         match key {
             Key::Ctrl('c') => self.should_quit = true,
-
-            Key::Up | Key::Down | Key::Left | Key::Right => self.handle_cursor(key),
-
+            Key::Up
+            | Key::Down
+            | Key::Left
+            | Key::Right
+            | Key::PageUp
+            | Key::PageDown
+            | Key::Home
+            | Key::End => self.handle_cursor(key),
             _ => (),
         }
         Ok(())
@@ -93,16 +98,20 @@ impl Editor {
         match key {
             Key::Up => y = y.saturating_sub(1),
             Key::Down => {
-                if size.height-1 > (u16::try_from(y).unwrap()) {
+                if size.height - 1 > (u16::try_from(y).unwrap()) {
                     y = y.saturating_add(1);
                 }
             }
             Key::Left => x = x.saturating_sub(1),
             Key::Right => {
-                if size.width-1 > (u16::try_from(x).unwrap()) {
+                if size.width - 1 > (u16::try_from(x).unwrap()) {
                     x = x.saturating_add(1);
                 }
             }
+            Key::PageDown => y = usize::try_from(size.height - 1).unwrap(),
+            Key::PageUp => y = 0,
+            Key::Home => x = 0,
+            Key::End => x = usize::try_from(size.width - 1).unwrap(),
             _ => (),
         }
         self.cursor_position = Position { x, y };
