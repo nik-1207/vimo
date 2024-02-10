@@ -54,8 +54,24 @@ impl Editor {
 
     fn process_key_press(&mut self) -> Result<(), Error> {
         let key = Terminal::read_key()?;
-        if let Key::Ctrl('c') = key {
-            self.should_quit = true;
+        match key {
+            Key::Ctrl('c') => {
+                self.should_quit = true;
+            }
+            Key::Up => {
+                self.cursor_position.y = self.cursor_position.y.saturating_sub(1);
+            }
+            Key::Down => {
+                self.cursor_position.y = self.cursor_position.y.saturating_add(1);
+            }
+            Key::Left => {
+                self.cursor_position.x = self.cursor_position.x.saturating_sub(1);
+
+            }
+            Key::Right => {
+                self.cursor_position.x = self.cursor_position.x.saturating_add(1);
+            }
+            _ => (),
         }
         Ok(())
     }
