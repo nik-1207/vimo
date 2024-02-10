@@ -105,7 +105,6 @@ impl Editor {
             }
             _ => (),
         }
-        print!("{x} {y}");
         self.cursor_position = Position { x, y };
     }
 }
