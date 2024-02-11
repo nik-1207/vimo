@@ -1,5 +1,7 @@
+mod document;
 mod terminal;
 
+use document::Document;
 use std::io::Error;
 use terminal::Terminal;
 use termion::event::Key;
@@ -14,6 +16,7 @@ pub struct Editor {
     should_quit: bool,
     cursor_position: Position,
     terminal: Terminal,
+    document: Document,
 }
 
 const VERSION: &str = env!("CARGO_PKG_VERSION");
@@ -23,6 +26,7 @@ impl Editor {
         Self {
             should_quit: false,
             cursor_position: Position::default(),
+            document: Document::open(),
             terminal: Terminal::default().expect("Failed to initialize the terminal."),
         }
     }
@@ -109,10 +113,10 @@ impl Editor {
                     x = x.saturating_add(1);
                 }
             }
-            Key::PageDown => y = usize::try_from(size.height - 1).unwrap(),
+            Key::PageDown => y = usize::from(size.height - 1),
             Key::PageUp => y = 0,
             Key::Home => x = 0,
-            Key::End => x = usize::try_from(size.width - 1).unwrap(),
+            Key::End => x = usize::from(size.width - 1),
             _ => (),
         }
         self.cursor_position = Position { x, y };
