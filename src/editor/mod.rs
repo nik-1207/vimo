@@ -80,7 +80,7 @@ impl Editor {
         let start = 0;
         let end = self.terminal.size().width as usize;
         let row = row.render(start, end);
-        println!("{row}\r", );
+        println!("{row}\r");
     }
 
     fn draw_rows(&self) {
