@@ -2,8 +2,9 @@ mod document;
 mod row;
 mod terminal;
 
-use document::Document;
 use row::Row;
+use std::env;
+use document::Document;
 use std::io::Error;
 use terminal::Terminal;
 use termion::event::Key;
@@ -25,10 +26,14 @@ const VERSION: &str = env!("CARGO_PKG_VERSION");
 
 impl Editor {
     pub fn default() -> Self {
+        let args: Vec<String> = env::args().collect();
+        let file_path = &args[0];
+        let document = Document::open(file_path).unwrap_or_default();
+
         Self {
             should_quit: false,
             cursor_position: Position::default(),
-            document: Document::open(),
+            document,
             terminal: Terminal::default().expect("Failed to initialize the terminal."),
         }
     }
@@ -89,7 +94,7 @@ impl Editor {
             Terminal::clear_current_line();
             if let Some(row) = self.document.get_row(row as usize) {
                 self.draw_row(row);
-            } else if row == size.height / 3 {
+            } else if row == size.height / 3 && self.document.is_empty() {
                 self.draw_welcome();
             } else {
                 println!("~\r");
@@ -114,13 +119,13 @@ impl Editor {
         match key {
             Key::Up => y = y.saturating_sub(1),
             Key::Down => {
-                if size.height - 1 > (u16::try_from(y).unwrap()) {
+                if size.height - 1 > (u16::try_from(y).unwrap_or_default()) {
                     y = y.saturating_add(1);
                 }
             }
             Key::Left => x = x.saturating_sub(1),
             Key::Right => {
-                if size.width - 1 > (u16::try_from(x).unwrap()) {
+                if size.width - 1 > (u16::try_from(x).unwrap_or_default()) {
                     x = x.saturating_add(1);
                 }
             }

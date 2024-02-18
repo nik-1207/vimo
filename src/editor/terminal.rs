@@ -57,8 +57,8 @@ impl Terminal {
         let Position { mut x, mut y } = position;
         x = x.saturating_add(1); // prevent overflow
         y = y.saturating_add(1); // prevent overflow
-        let x = u16::try_from(x).unwrap();
-        let y = u16::try_from(y).unwrap();
+        let x = u16::try_from(x).unwrap_or_default();
+        let y = u16::try_from(y).unwrap_or_default();
         print!("{}", termion::cursor::Goto(x, y));
     }
 
