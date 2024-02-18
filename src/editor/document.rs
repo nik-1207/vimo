@@ -8,7 +8,7 @@ pub(crate) struct Document {
 }
 
 impl Document {
-    pub fn open(file_path: &str) -> Result<Self, Error> {
+    pub(crate) fn open(file_path: &str) -> Result<Self, Error> {
         let mut rows = Vec::new();
         let contents = fs::read_to_string(file_path)?;
         for line in contents.lines() {
@@ -17,11 +17,11 @@ impl Document {
         Ok(Self { rows })
     }
 
-    pub fn get_row(&self, index: usize) -> Option<&Row> {
+    pub(crate) fn get_row(&self, index: usize) -> Option<&Row> {
         self.rows.get(index)
     }
 
-    pub fn is_empty(&self) -> bool {
+    pub(crate) fn is_empty(&self) -> bool {
         self.rows.is_empty()
     }
 }

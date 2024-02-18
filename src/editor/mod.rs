@@ -26,7 +26,7 @@ pub struct Editor {
 const VERSION: &str = env!("CARGO_PKG_VERSION");
 
 impl Editor {
-    pub fn default() -> Self {
+    pub(crate) fn default() -> Self {
         let args: Vec<String> = env::args().collect();
         let document = if args.len() > 1 {
             let file_path = &args[1];
@@ -44,7 +44,7 @@ impl Editor {
         }
     }
 
-    pub fn run(&mut self) {
+    pub(crate) fn run(&mut self) {
         loop {
             if self.should_quit {
                 Terminal::clear_screen();
