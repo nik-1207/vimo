@@ -1,7 +1,9 @@
 mod document;
+mod row;
 mod terminal;
 
 use document::Document;
+use row::Row;
 use std::io::Error;
 use terminal::Terminal;
 use termion::event::Key;
@@ -74,11 +76,20 @@ impl Editor {
         Ok(())
     }
 
+    fn draw_row(&self, row: &Row) {
+        let start = 0;
+        let end = self.terminal.size().width as usize;
+        let row = row.render(start, end);
+        println!("{row}\r", );
+    }
+
     fn draw_rows(&self) {
         let size = self.terminal.size();
         for row in 0..size.height - 1 {
             Terminal::clear_current_line();
-            if row == size.height / 3 {
+            if let Some(row) = self.document.get_row(row as usize) {
+                self.draw_row(row);
+            } else if row == size.height / 3 {
                 self.draw_welcome();
             } else {
                 println!("~\r");

@@ -1,6 +1,4 @@
-struct Row {
-    string: String,
-}
+use super::row::Row;
 
 #[derive(Default)] // derive the implementation of the default method.
 pub(crate) struct Document {
@@ -9,10 +7,16 @@ pub(crate) struct Document {
 
 impl Document {
     pub fn open() -> Self {
-        let mut rows = Vec::new();
-        rows.push(Row {
+        let rows = vec![Row {
             string: String::from("Hello World"),
-        });
+        }];
+        // rows.push(Row {
+        //     string: String::from("Hello World"),
+        // });
         Self { rows }
+    }
+
+    pub fn get_row(&self, index: usize) -> Option<&Row> {
+        self.rows.get(index)
     }
 }
