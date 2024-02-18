@@ -2,9 +2,9 @@ mod document;
 mod row;
 mod terminal;
 
+use document::Document;
 use row::Row;
 use std::env;
-use document::Document;
 use std::io::Error;
 use terminal::Terminal;
 use termion::event::Key;
@@ -18,6 +18,7 @@ pub(crate) struct Position {
 pub struct Editor {
     should_quit: bool,
     cursor_position: Position,
+    offset: Position,
     terminal: Terminal,
     document: Document,
 }
@@ -27,13 +28,18 @@ const VERSION: &str = env!("CARGO_PKG_VERSION");
 impl Editor {
     pub fn default() -> Self {
         let args: Vec<String> = env::args().collect();
-        let file_path = &args[0];
-        let document = Document::open(file_path).unwrap_or_default();
+        let document = if args.len() > 1 {
+            let file_path = &args[1];
+            Document::open(file_path).unwrap_or_default()
+        } else {
+            Document::default()
+        };
 
         Self {
             should_quit: false,
             cursor_position: Position::default(),
             document,
+            offset: Position::default(),
             terminal: Terminal::default().expect("Failed to initialize the terminal."),
         }
     }
@@ -78,12 +84,14 @@ impl Editor {
             | Key::End => self.handle_cursor(key),
             _ => (),
         }
+        self.scroll();
         Ok(())
     }
 
     fn draw_row(&self, row: &Row) {
-        let start = 0;
-        let end = self.terminal.size().width as usize;
+        let width = self.terminal.size().width as usize;
+        let start = self.offset.x;
+        let end = start.saturating_add(width);
         let row = row.render(start, end);
         println!("{row}\r");
     }
@@ -92,7 +100,10 @@ impl Editor {
         let size = self.terminal.size();
         for row in 0..size.height - 1 {
             Terminal::clear_current_line();
-            if let Some(row) = self.document.get_row(row as usize) {
+            if let Some(row) = self
+                .document
+                .get_row((row as usize).saturating_add(self.offset.y))
+            {
                 self.draw_row(row);
             } else if row == size.height / 3 && self.document.is_empty() {
                 self.draw_welcome();
@@ -136,5 +147,24 @@ impl Editor {
             _ => (),
         }
         self.cursor_position = Position { x, y };
+    }
+
+    fn scroll(&mut self) {
+        let Position { x, y } = self.cursor_position;
+        let width = self.terminal.size().width as usize;
+        let height = self.terminal.size().height as usize;
+        let offset = &mut self.offset;
+
+        if y < offset.y {
+            offset.y = y;
+        } else if y >= offset.y.saturating_add(height) {
+            offset.y = y.saturating_sub(height).saturating_add(1);
+        }
+
+        if x < offset.x {
+            offset.x = x;
+        } else if x >= offset.x.saturating_add(width) {
+            offset.x = x.saturating_sub(width).saturating_add(1);
+        }
     }
 }
