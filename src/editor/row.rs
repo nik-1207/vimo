@@ -18,7 +18,7 @@ impl Row {
         self.string.get(start..end).unwrap_or_default().to_string()
     }
 
-    pub(crate) fn len(&self)->usize {
+    pub(crate) fn len(&self) -> usize {
         self.string.len()
     }
 }

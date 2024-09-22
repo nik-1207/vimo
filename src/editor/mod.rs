@@ -130,7 +130,7 @@ impl Editor {
     fn handle_cursor(&mut self, key: Key) {
         let Position { mut x, mut y } = self.cursor_position;
         let height = self.document.len();
-        let width = if let Some(row) = self.document.get_row(y) {
+        let mut width = if let Some(row) = self.document.get_row(y) {
             row.len()
         } else {
             0
@@ -154,6 +154,14 @@ impl Editor {
             Key::Home => x = 0,
             Key::End => x = width,
             _ => (),
+        }
+        width = if let Some(row) = self.document.get_row(y) {
+            row.len()
+        } else {
+            0
+        };
+        if width < x {
+            x = width;
         }
         self.cursor_position = Position { x, y };
     }
