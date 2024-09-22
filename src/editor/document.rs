@@ -24,4 +24,8 @@ impl Document {
     pub(crate) fn is_empty(&self) -> bool {
         self.rows.is_empty()
     }
+
+    pub(crate) fn len(&self) -> usize {
+        self.rows.len()
+    }
 }

@@ -65,7 +65,10 @@ impl Editor {
         Terminal::clear_screen();
         Terminal::cursor_position(&Position::default());
         self.draw_rows();
-        Terminal::cursor_position(&self.cursor_position);
+        Terminal::cursor_position(&Position {
+            x: self.cursor_position.x.saturating_sub(self.offset.x),
+            y: self.cursor_position.y.saturating_sub(self.offset.y),
+        });
         Terminal::cursor_show();
         Terminal::flush()
     }
@@ -127,10 +130,12 @@ impl Editor {
     fn handle_cursor(&mut self, key: Key) {
         let Position { mut x, mut y } = self.cursor_position;
         let size = self.terminal.size();
+        let height = self.document.len();
+
         match key {
             Key::Up => y = y.saturating_sub(1),
             Key::Down => {
-                if size.height - 1 > (u16::try_from(y).unwrap_or_default()) {
+                if height > y {
                     y = y.saturating_add(1);
                 }
             }
