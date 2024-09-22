@@ -101,7 +101,7 @@ impl Editor {
 
     fn draw_rows(&self) {
         let size = self.terminal.size();
-        for row in 0..size.height - 1 {
+        for row in 0..size.height {
             Terminal::clear_current_line();
             if let Some(row) = self
                 .document

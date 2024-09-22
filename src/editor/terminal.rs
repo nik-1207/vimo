@@ -21,7 +21,10 @@ impl Terminal {
     pub(crate) fn default() -> Result<Self, Error> {
         let (width, height) = terminal_size()?;
         Ok(Self {
-            size: Size { height, width },
+            size: Size {
+                height: height.saturating_sub(2),
+                width,
+            },
             // entering raw mode for terminal i.e it will not wait terminal to press 'enter' key to read the input.
             _stdout: stdout().into_raw_mode()?,
         })
