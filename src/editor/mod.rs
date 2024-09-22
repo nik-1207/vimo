@@ -129,8 +129,12 @@ impl Editor {
 
     fn handle_cursor(&mut self, key: Key) {
         let Position { mut x, mut y } = self.cursor_position;
-        let size = self.terminal.size();
         let height = self.document.len();
+        let width = if let Some(row) = self.document.get_row(y) {
+            row.len()
+        } else {
+            0
+        };
 
         match key {
             Key::Up => y = y.saturating_sub(1),
@@ -141,14 +145,14 @@ impl Editor {
             }
             Key::Left => x = x.saturating_sub(1),
             Key::Right => {
-                if size.width - 1 > (u16::try_from(x).unwrap_or_default()) {
+                if width > x {
                     x = x.saturating_add(1);
                 }
             }
-            Key::PageDown => y = usize::from(size.height - 1),
+            Key::PageDown => y = height,
             Key::PageUp => y = 0,
             Key::Home => x = 0,
-            Key::End => x = usize::from(size.width - 1),
+            Key::End => x = width,
             _ => (),
         }
         self.cursor_position = Position { x, y };

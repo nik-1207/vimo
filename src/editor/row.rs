@@ -17,4 +17,8 @@ impl Row {
         let start = min(start, end);
         self.string.get(start..end).unwrap_or_default().to_string()
     }
+
+    pub(crate) fn len(&self)->usize {
+        self.string.len()
+    }
 }
