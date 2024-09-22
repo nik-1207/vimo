@@ -7,3 +7,10 @@ authors = ["Nikhil kashyap <nmknikhilkashyap@gmail.com>"]
 
 [dependencies]
 termion = "3.0.0"
+
+
+[dev-dependencies.cargo-husky]
+version = "1"
+default-features = false # Disable features which are enabled by default
+features = ["precommit-hook", "run-cargo-test", "run-cargo-clippy"]
+
