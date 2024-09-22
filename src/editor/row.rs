@@ -2,14 +2,18 @@ use std::cmp::min;
 use unicode_segmentation::UnicodeSegmentation;
 
 pub(crate) struct Row {
+    pub(crate) len: usize,
     pub(crate) string: String,
 }
 
 impl From<&str> for Row {
     fn from(slice: &str) -> Self {
-        Self {
+        let mut row = Self {
             string: String::from(slice),
-        }
+            len: 0,
+        };
+        row.update_len();
+        row
     }
 }
 
@@ -30,6 +34,11 @@ impl Row {
     }
 
     pub(crate) fn len(&self) -> usize {
-        self.string[..].graphemes(true).count()
+        self.len
     }
+
+    pub(crate) fn update_len(&mut self) {
+        self.len = self.string[..].graphemes(true).count();
+    }
+
 }
