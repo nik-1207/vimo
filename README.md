@@ -1,21 +1,18 @@
-1. Init Project:
-```shell
-cargo init <porject name>
+## [VIMO](https://www.flenker.blog/hecto/)
 
-```
-
-2. Format Files:
+## CLI Helpers
+1. Format Files:
 ```shell
 cargo fmt
 ```
 
-3. Linter:
+2. Linter:
 ```shell
 cargo clean
 cargo clippy -- -W clippy::pedantic
 ```
 
-4. Starting the application:
+3. Starting the application:
 ```shell
 cargo run 
 ```
