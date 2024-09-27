@@ -25,7 +25,7 @@ pub struct Editor {
 }
 
 const STATUS_BG_COLOR: color::Rgb = color::Rgb(239, 239, 239); // White
-const STATUS_FG_COLOR: color::Rgb = color::Rgb(63, 63, 63); // Dark            
+const STATUS_FG_COLOR: color::Rgb = color::Rgb(63, 63, 63); // Dark
 
 const VERSION: &str = env!("CARGO_PKG_VERSION");
 
@@ -192,18 +192,26 @@ impl Editor {
     }
 
     fn draw_status_bar(&self) {
-        let mut file_name = " ".to_string();            
+        let mut file_name = " ".to_string();
         let terminal_width: usize = self.terminal.size().width.into();
+        let cursor_position = format!(
+            "Line: {} Column: {}",
+            self.cursor_position.y.saturating_add(1),
+            self.cursor_position.x.saturating_add(1)
+        );
 
         if let Some(name) = &self.document.file_name {
-            file_name.clone_from(name);
+            file_name.push_str(name);
             file_name.truncate(20);
         }
-        if terminal_width> file_name.len() {
-            let spaces = " ".repeat(terminal_width-file_name.len());
+
+        if terminal_width > file_name.len() {
+            let spaces = " ".repeat(terminal_width - cursor_position.len() - file_name.len() -1);
             file_name.push_str(&spaces);
+            file_name.push_str(&cursor_position);
+            file_name.push(' ');
         }
-        
+
         Terminal::set_bg_color(STATUS_BG_COLOR);
         Terminal::set_fg_color(STATUS_FG_COLOR);
         println!("{file_name}\r");
