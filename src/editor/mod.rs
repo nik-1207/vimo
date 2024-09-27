@@ -7,6 +7,7 @@ use row::Row;
 use std::env;
 use std::io::Error;
 use terminal::Terminal;
+use termion::color;
 use termion::event::Key;
 
 #[derive(Default)] // derive the implementation of the default method.
@@ -23,6 +24,7 @@ pub struct Editor {
     document: Document,
 }
 
+const STATUS_BG_COLOR: color::Rgb = color::Rgb(239, 239, 239); // White
 const VERSION: &str = env!("CARGO_PKG_VERSION");
 
 impl Editor {
@@ -65,6 +67,8 @@ impl Editor {
         Terminal::clear_screen();
         Terminal::cursor_position(&Position::default());
         self.draw_rows();
+        self.draw_status_bar();
+        Terminal::clear_current_line();        
         Terminal::cursor_position(&Position {
             x: self.cursor_position.x.saturating_sub(self.offset.x),
             y: self.cursor_position.y.saturating_sub(self.offset.y),
@@ -184,4 +188,12 @@ impl Editor {
             offset.x = x.saturating_sub(width).saturating_add(1);
         }
     }
+
+    fn draw_status_bar(&self) {
+        let spaces = " ".repeat(self.terminal.size().width as usize);
+        Terminal::set_bg_color(STATUS_BG_COLOR);
+        println!("{spaces}\r");
+        Terminal::reset_bg_color();
+    }
+
 }

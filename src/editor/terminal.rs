@@ -1,6 +1,7 @@
 use super::Position;
 use std::io::{stdin, stdout, Error, Stdout, Write};
 use termion::clear;
+use termion::color;
 use termion::cursor::Goto;
 use termion::event::Key;
 use termion::input::TermRead;
@@ -75,5 +76,12 @@ impl Terminal {
 
     pub(crate) fn clear_current_line() {
         print!("{}", clear::CurrentLine);
+    }
+
+    pub fn set_bg_color(color: color::Rgb) {
+        print!("{}", color::Bg(color));
+    }
+    pub fn reset_bg_color() {
+        print!("{}", color::Bg(color::Reset));
     }
 }
