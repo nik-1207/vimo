@@ -25,6 +25,8 @@ pub struct Editor {
 }
 
 const STATUS_BG_COLOR: color::Rgb = color::Rgb(239, 239, 239); // White
+const STATUS_FG_COLOR: color::Rgb = color::Rgb(63, 63, 63); // Dark            
+
 const VERSION: &str = env!("CARGO_PKG_VERSION");
 
 impl Editor {
@@ -68,7 +70,7 @@ impl Editor {
         Terminal::cursor_position(&Position::default());
         self.draw_rows();
         self.draw_status_bar();
-        Terminal::clear_current_line();        
+        Terminal::clear_current_line();
         Terminal::cursor_position(&Position {
             x: self.cursor_position.x.saturating_sub(self.offset.x),
             y: self.cursor_position.y.saturating_sub(self.offset.y),
@@ -190,10 +192,22 @@ impl Editor {
     }
 
     fn draw_status_bar(&self) {
-        let spaces = " ".repeat(self.terminal.size().width as usize);
-        Terminal::set_bg_color(STATUS_BG_COLOR);
-        println!("{spaces}\r");
-        Terminal::reset_bg_color();
-    }
+        let mut file_name = " ".to_string();            
+        let terminal_width: usize = self.terminal.size().width.into();
 
+        if let Some(name) = &self.document.file_name {
+            file_name.clone_from(name);
+            file_name.truncate(20);
+        }
+        if terminal_width> file_name.len() {
+            let spaces = " ".repeat(terminal_width-file_name.len());
+            file_name.push_str(&spaces);
+        }
+        
+        Terminal::set_bg_color(STATUS_BG_COLOR);
+        Terminal::set_fg_color(STATUS_FG_COLOR);
+        println!("{file_name}\r");
+        Terminal::reset_bg_color();
+        Terminal::reset_fg_color();
+    }
 }
