@@ -1,11 +1,14 @@
 mod document;
 mod row;
+mod status;
 mod terminal;
 
 use document::Document;
 use row::Row;
+use status::StatusMessage;
 use std::env;
 use std::io::Error;
+use std::time::{Duration, Instant};
 use terminal::Terminal;
 use termion::color;
 use termion::event::Key;
@@ -22,19 +25,26 @@ pub struct Editor {
     offset: Position,
     terminal: Terminal,
     document: Document,
+    statusMessage: StatusMessage,
 }
 
 const STATUS_BG_COLOR: color::Rgb = color::Rgb(239, 239, 239); // White
 const STATUS_FG_COLOR: color::Rgb = color::Rgb(63, 63, 63); // Dark
-
 const VERSION: &str = env!("CARGO_PKG_VERSION");
 
 impl Editor {
     pub(crate) fn default() -> Self {
         let args: Vec<String> = env::args().collect();
+        let mut initialMessage = String::from("Help: CTRL+C");
         let document = if args.len() > 1 {
             let file_path = &args[1];
-            Document::open(file_path).unwrap_or_default()
+            let doc = Document::open(file_path);
+            if doc.is_ok() {
+                doc.unwrap()
+            } else {
+                initialMessage = format!("ERR: Could not open file: {}", file_path);
+                Document::default()
+            }
         } else {
             Document::default()
         };
@@ -45,6 +55,7 @@ impl Editor {
             document,
             offset: Position::default(),
             terminal: Terminal::default().expect("Failed to initialize the terminal."),
+            statusMessage: StatusMessage::from(initialMessage),
         }
     }
 
@@ -192,29 +203,36 @@ impl Editor {
     }
 
     fn draw_status_bar(&self) {
-        let mut file_name = " ".to_string();
+        let mut status_message = " ".to_string();
+        let message = &self.statusMessage;
         let terminal_width: usize = self.terminal.size().width.into();
         let cursor_position = format!(
             "Line: {} Column: {}",
             self.cursor_position.y.saturating_add(1),
             self.cursor_position.x.saturating_add(1)
         );
-
-        if let Some(name) = &self.document.file_name {
-            file_name.push_str(name);
-            file_name.truncate(20);
+        
+        if Instant::now()-message.time < Duration::new(5, 0) {
+            status_message.push_str(&message.text);
+            status_message.push_str("    ");
         }
 
-        if terminal_width > file_name.len() {
-            let spaces = " ".repeat(terminal_width - cursor_position.len() - file_name.len() -1);
-            file_name.push_str(&spaces);
-            file_name.push_str(&cursor_position);
-            file_name.push(' ');
+        if let Some(file_name) = &self.document.file_name {
+            let mut name = String::from(file_name);
+            name.truncate(20);
+            status_message.push_str(&name);
+        }
+
+        if terminal_width > status_message.len() {
+            let spaces = " ".repeat(terminal_width - cursor_position.len() - status_message.len() - 1);
+            status_message.push_str(&spaces);
+            status_message.push_str(&cursor_position);
+            status_message.push(' ');
         }
 
         Terminal::set_bg_color(STATUS_BG_COLOR);
         Terminal::set_fg_color(STATUS_FG_COLOR);
-        println!("{file_name}\r");
+        println!("{status_message}\r");
         Terminal::reset_bg_color();
         Terminal::reset_fg_color();
     }
