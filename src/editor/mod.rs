@@ -8,7 +8,7 @@ use row::Row;
 use status::StatusMessage;
 use std::env;
 use std::io::Error;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use terminal::Terminal;
 use termion::color;
 use termion::event::Key;
@@ -25,7 +25,7 @@ pub struct Editor {
     offset: Position,
     terminal: Terminal,
     document: Document,
-    statusMessage: StatusMessage,
+    status_message: StatusMessage,
 }
 
 const STATUS_BG_COLOR: color::Rgb = color::Rgb(239, 239, 239); // White
@@ -35,14 +35,13 @@ const VERSION: &str = env!("CARGO_PKG_VERSION");
 impl Editor {
     pub(crate) fn default() -> Self {
         let args: Vec<String> = env::args().collect();
-        let mut initialMessage = String::from("Help: CTRL+C");
+        let mut initial_message = String::from("Help: CTRL+C");
         let document = if args.len() > 1 {
             let file_path = &args[1];
-            let doc = Document::open(file_path);
-            if doc.is_ok() {
-                doc.unwrap()
+            if let Ok(doc) = Document::open(file_path) {
+                doc // If doc is ok, return doc
             } else {
-                initialMessage = format!("ERR: Could not open file: {}", file_path);
+                initial_message = format!("ERR: Could not open file: {file_path}");
                 Document::default()
             }
         } else {
@@ -55,7 +54,7 @@ impl Editor {
             document,
             offset: Position::default(),
             terminal: Terminal::default().expect("Failed to initialize the terminal."),
-            statusMessage: StatusMessage::from(initialMessage),
+            status_message: StatusMessage::from(initial_message),
         }
     }
 
@@ -204,15 +203,15 @@ impl Editor {
 
     fn draw_status_bar(&self) {
         let mut status_message = " ".to_string();
-        let message = &self.statusMessage;
+        let message = &self.status_message;
         let terminal_width: usize = self.terminal.size().width.into();
         let cursor_position = format!(
             "Line: {} Column: {}",
             self.cursor_position.y.saturating_add(1),
             self.cursor_position.x.saturating_add(1)
         );
-        
-        if Instant::now()-message.time < Duration::new(5, 0) {
+
+        if message.time.elapsed() < Duration::new(5, 0) {
             status_message.push_str(&message.text);
             status_message.push_str("    ");
         }
@@ -224,7 +223,8 @@ impl Editor {
         }
 
         if terminal_width > status_message.len() {
-            let spaces = " ".repeat(terminal_width - cursor_position.len() - status_message.len() - 1);
+            let spaces =
+                " ".repeat(terminal_width - cursor_position.len() - status_message.len() - 1);
             status_message.push_str(&spaces);
             status_message.push_str(&cursor_position);
             status_message.push(' ');
