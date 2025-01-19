@@ -93,7 +93,9 @@ impl Editor {
         let key = Terminal::read_key()?;
         match key {
             Key::Ctrl('c') => self.should_quit = true,
-            Key::Up
+            Key::CtrlRight
+            | Key::CtrlLeft
+            | Key::Up
             | Key::Down
             | Key::Left
             | Key::Right
@@ -160,7 +162,17 @@ impl Editor {
                 }
             }
             Key::Left => x = x.saturating_sub(1),
+            Key::CtrlLeft => {
+                // TODO: move word
+                x = x.saturating_sub(1);
+            }
             Key::Right => {
+                if width > x {
+                    x = x.saturating_add(1);
+                }
+            }
+            Key::CtrlRight => {
+                // TODO: move word
                 if width > x {
                     x = x.saturating_add(1);
                 }
