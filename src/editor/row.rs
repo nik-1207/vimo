@@ -41,6 +41,10 @@ impl Row {
         self.len
     }
 
+    pub(crate) fn text(&self) -> &String {
+        &self.string
+    }
+
     pub(crate) fn update_len(&mut self) {
         self.len = self.string[..].graphemes(true).count();
     }

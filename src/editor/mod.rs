@@ -2,6 +2,7 @@ mod document;
 mod row;
 mod status;
 mod terminal;
+mod utils;
 
 use document::Document;
 use row::Row;
@@ -12,6 +13,7 @@ use std::time::Duration;
 use terminal::Terminal;
 use termion::color;
 use termion::event::Key;
+use utils::distance_to_word_start;
 
 #[derive(Default)] // derive the implementation of the default method.
 pub(crate) struct Position {
@@ -153,6 +155,12 @@ impl Editor {
         } else {
             0
         };
+        let text = if let Some(row) = self.document.get_row(y) {
+            row.text()
+        } else {
+            ""
+        };
+        let distance = distance_to_word_start(text, x);
 
         match key {
             Key::Up => y = y.saturating_sub(1),
@@ -163,8 +171,7 @@ impl Editor {
             }
             Key::Left => x = x.saturating_sub(1),
             Key::CtrlLeft => {
-                // TODO: move word
-                x = x.saturating_sub(1);
+                x = x.saturating_sub(distance);
             }
             Key::Right => {
                 if width > x {
@@ -174,7 +181,7 @@ impl Editor {
             Key::CtrlRight => {
                 // TODO: move word
                 if width > x {
-                    x = x.saturating_add(1);
+                    x = x.saturating_add(distance);
                 }
             }
             Key::PageDown => y = height,
